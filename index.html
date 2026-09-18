@@ -105,6 +105,10 @@
     .question-number-tag { font:700 22px 'Space Grotesk'; color:var(--orange); margin:6px 0 0; }
     .question-actions { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:18px; }
     .question-actions .btn { flex:1; }
+    .quiz-motivation { display:flex; align-items:center; gap:12px; margin-top:14px; padding:13px 15px; border:1px solid #d9958f; border-radius:14px; background:linear-gradient(145deg,#3b202f,#2b1b29 68%,#233a34); color:#f6d8da; box-shadow:0 8px 18px #12070b35; }
+    .quiz-motivation-bear { display:grid; place-items:center; flex:0 0 38px; width:38px; height:38px; border:1px solid #d9958f; border-radius:50%; background:#f3c1aa; box-shadow:0 4px 0 #a85f60,0 6px 12px #12070b55; font-size:22px; }
+    .quiz-motivation-copy { margin:0; font-size:12px; line-height:1.55; }
+    .quiz-motivation-copy strong { display:block; color:#ffe6d7; margin-bottom:2px; }
     .editor-question-card { border:1px solid var(--line); border-radius:12px; background:#2b1d28; padding:clamp(12px,1.5vw,18px); margin-top:14px; }
     .editor-question-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
     .editor-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
@@ -170,18 +174,19 @@
     .score-detail small { display:block; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.7px; }
     .score-detail strong { display:block; margin-top:4px; color:var(--ink); overflow-wrap:anywhere; }
     .confetti-container { pointer-events:none; position:absolute; inset:0; overflow:hidden; }
-    .score-hero { position:relative; overflow:hidden; }
-    .confetti { position:absolute; top:-14px; width:8px; height:14px; animation:confettiFall 1.8s ease-out forwards; }
+    .score-hero { position:relative; overflow:visible; }
+    .confetti-container { z-index:3; overflow:visible; }
+    .confetti { position:absolute; top:-42px; width:8px; height:14px; animation:confettiFall 2.4s ease-out forwards; }
     @keyframes confettiFall { to { transform:translateY(360px) rotate(540deg); opacity:0; } }
     .passing-hands { position:absolute; top:-54px; z-index:2; font-size:clamp(24px,4vw,38px); line-height:1; animation:clapHandsFall 1.8s cubic-bezier(.2,.8,.3,1) forwards; }
     @keyframes clapHandsFall { 0% { transform:translateY(0) rotate(-18deg) scale(.8); opacity:0; } 15% { opacity:1; } 72% { transform:translateY(245px) rotate(12deg) scale(1); opacity:1; } 100% { transform:translateY(310px) rotate(-8deg) scale(.9); opacity:0; } }
     .score-circle { position:relative; width:clamp(150px,24vw,210px); aspect-ratio:1; margin:18px auto; padding:10px; display:grid; place-items:center; border-radius:50%; background:conic-gradient(#4eaa7d calc(var(--correct-percent, 0) * 1%), #e2b93b 0); box-shadow:0 0 0 8px #4e8c7955,0 16px 30px #12070b55; transition:background .35s ease, box-shadow .25s ease; }
-    .score-circle > .score-circle-value { width:100%; height:100%; display:grid; place-items:center; border-radius:50%; background:#24141b; }
+    .score-circle > .score-circle-value { width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; border-radius:50%; background:#24141b; }
     .score-circle .circle-confetti { position:absolute; inset:-10px; pointer-events:none; overflow:hidden; border-radius:50%; }
     .score-circle .circle-confetti i { position:absolute; top:-8px; width:5px; height:9px; border-radius:2px; animation:circleConfettiFall 1.8s ease-out infinite; }
     @keyframes circleConfettiFall { 0% { transform:translateY(0) rotate(0); opacity:0; } 15% { opacity:1; } 100% { transform:translateY(205px) rotate(360deg); opacity:0; } }
-    .score-circle strong { display:block; color:#e5fff2; font:700 clamp(38px,8vw,60px) 'Space Grotesk'; line-height:1; }
-    .score-circle span { color:var(--muted); font-size:12px; font-weight:700; }
+    .score-circle strong { display:block; color:#e5fff2; font:700 clamp(48px,10vw,72px) 'Space Grotesk'; line-height:.9; }
+    .score-circle span { color:var(--muted); font:700 clamp(18px,3.5vw,25px) 'Space Grotesk'; line-height:1; }
     .score-review { background:#321b24; border:1px solid var(--line); border-radius:14px; padding:clamp(18px,2vw,24px); }
     .teacher-message { position:relative; overflow:hidden; background:linear-gradient(145deg,#3b202f,#2b1b29 68%,#233a34); border:1px solid #76505b; border-radius:20px; padding:clamp(18px,2vw,26px); box-shadow:0 12px 28px #12070b45; }
     .teacher-message::after { content:'♥  ✦  ♥'; position:absolute; right:22px; top:16px; color:#f3c1aa; font-size:13px; letter-spacing:7px; opacity:.8; pointer-events:none; }
@@ -946,8 +951,12 @@
       });
       return [...groups.values()];
     }
+    function quizQuestionCount(group) {
+      const codes = group?.codes?.length ? group.codes : group?.classCode ? [group.classCode] : group?.code ? [group.code] : [];
+      return codes.reduce((count, code) => count + state.quizzes.filter(item => item.classCode === code).length, 0) || Number(group?.questions?.length) || 0;
+    }
     function quizGroups() { return visibleQuizGroups(state.quizzes).filter(group => group.status === 'ended'); }
-    function renderQuizDoneCards() { const groups = quizGroups(); const viewingStudentPaper = !$('studentPaperView')?.classList.contains('hidden'); const viewingStudentList = !$('quizStudentView')?.classList.contains('hidden'); $('quizDoneCards').className = groups.length && !viewingStudentPaper && !viewingStudentList ? 'quiz-cards' : 'hidden'; $('quizDoneEmpty').classList.toggle('hidden', Boolean(groups.length)); $('quizDoneCards').innerHTML = groups.map((group,index) => { const submissions = state.submissions.filter(item => group.codes.includes(item.classCode)); const questionCount = state.quizzes.filter(item => item.classCode === group.code).length || group.questions.length; return `<article class="done-card" data-quiz-code="${escapeHtml(group.code)}"><div class="card-actions"><button class="icon-btn icon-edit done-edit" title="Edit quiz schedule" aria-label="Edit quiz" data-code="${escapeHtml(group.code)}" type="button">&#9998;</button><button class="icon-btn delete icon-delete done-delete" title="Delete quiz" aria-label="Delete quiz" data-code="${escapeHtml(group.code)}" type="button">&#128465;</button></div><span class="number-badge">ENDED</span><h3>Quiz ${String(index + 1).padStart(2,'0')} · ${escapeHtml(formatSubject(group.title))}</h3><p><strong>Teacher:</strong> ${escapeHtml(formatPersonName(group.teacherName || 'Teacher'))}</p><p><strong>Subject:</strong> ${escapeHtml(formatSubject(group.title))}</p><p><strong>Quiz No.:</strong> ${escapeHtml(displayQuizNumber(group))}</p><p><strong>Schedule:</strong> ${group.startAt && group.endAt ? `${formatDate(group.startAt)} - ${formatDate(group.endAt)}` : 'Schedule not set'}</p><p><strong>Questions:</strong> ${questionCount}</p><div class="card-footer"><button class="takers-count" data-code="${escapeHtml(group.code)}" type="button">${submissions.length} TAKERS</button><button class="ranking-btn" data-code="${escapeHtml(group.code)}" type="button">View ranking</button><button class="btn outline export-results" data-code="${escapeHtml(group.code)}" type="button">Download Record Document</button><button class="btn outline retake-quiz" data-code="${escapeHtml(group.code)}" type="button">Retake</button></div></article>`; }).join(''); }
+    function renderQuizDoneCards() { const groups = quizGroups(); const viewingStudentPaper = !$('studentPaperView')?.classList.contains('hidden'); const viewingStudentList = !$('quizStudentView')?.classList.contains('hidden'); $('quizDoneCards').className = groups.length && !viewingStudentPaper && !viewingStudentList ? 'quiz-cards' : 'hidden'; $('quizDoneEmpty').classList.toggle('hidden', Boolean(groups.length)); $('quizDoneCards').innerHTML = groups.map((group,index) => { const submissions = state.submissions.filter(item => group.codes.includes(item.classCode)); const questionCount = quizQuestionCount(group); return `<article class="done-card" data-quiz-code="${escapeHtml(group.code)}"><div class="card-actions"><button class="icon-btn icon-edit done-edit" title="Edit quiz schedule" aria-label="Edit quiz" data-code="${escapeHtml(group.code)}" type="button">&#9998;</button><button class="icon-btn delete icon-delete done-delete" title="Delete quiz" aria-label="Delete quiz" data-code="${escapeHtml(group.code)}" type="button">&#128465;</button></div><span class="number-badge">ENDED</span><h3>Quiz ${String(index + 1).padStart(2,'0')} · ${escapeHtml(formatSubject(group.title))}</h3><p><strong>Teacher:</strong> ${escapeHtml(formatPersonName(group.teacherName || 'Teacher'))}</p><p><strong>Subject:</strong> ${escapeHtml(formatSubject(group.title))}</p><p><strong>Quiz No.:</strong> ${escapeHtml(displayQuizNumber(group))}</p><p><strong>Schedule:</strong> ${group.startAt && group.endAt ? `${formatDate(group.startAt)} - ${formatDate(group.endAt)}` : 'Schedule not set'}</p><p><strong>Questions:</strong> ${questionCount}</p><div class="card-footer"><button class="takers-count" data-code="${escapeHtml(group.code)}" type="button">${submissions.length} TAKERS</button><button class="ranking-btn" data-code="${escapeHtml(group.code)}" type="button">View ranking</button><button class="btn outline export-results" data-code="${escapeHtml(group.code)}" type="button">Download Record Document</button><button class="btn outline retake-quiz" data-code="${escapeHtml(group.code)}" type="button">Retake</button></div></article>`; }).join(''); }
     function updateQuizRecords(code, changes) { state.quizzes = state.quizzes.map(item => item.classCode === code ? { ...item, ...changes } : item); saveLocal(); }
     function exportQuizResults(code) {
       const group = quizGroups().find(item => item.codes.includes(code)) || visibleQuizGroups(state.quizzes).find(item => item.codes.includes(code));
@@ -957,7 +966,7 @@
       const teacher = formatPersonName(quiz.teacherName || rows[0]?.teacherName || 'Teacher');
       const subject = formatSubject(quiz.title || rows[0]?.subject || 'Untitled quiz');
       const schedule = quiz.startAt && quiz.endAt ? `${formatDate(quiz.startAt)} - ${formatDate(quiz.endAt)}` : 'Schedule not set';
-      const actualQuestionCount = state.quizzes.filter(item => item.classCode === code).length || Number(rows[0]?.total) || 0;
+      const actualQuestionCount = quizQuestionCount(quiz) || Number(rows[0]?.total) || 0;
       const tableRows = rows.length ? rows.map((item, index) => `<tr><td>${index + 1}</td><td>${escapeHtml(formatPersonName(item.studentName))}</td><td>${escapeHtml(item.course || '')}</td><td><strong>${item.score ?? 0} / ${item.total ?? 0}</strong></td><td>${result(item)}</td><td>${escapeHtml(formatDate(item.submittedAt))}</td></tr>`).join('') : '<tr><td colspan="6" style="text-align:center">No student records submitted.</td></tr>';
       const documentHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Quiz Record - ${escapeHtml(displayQuizNumber(quiz) || code)}</title><style>@page{size:A4;margin:18mm}body{font-family:Arial,sans-serif;color:#20242b;max-width:1100px;margin:0 auto;padding:28px 34px;font-size:13px}h1{font-size:27px;margin:0 0 7px;color:#243447}h2{font-size:17px;margin:30px 0 11px;color:#243447;border-bottom:2px solid #243447;padding-bottom:7px}.subtitle{color:#66717d;margin:0 0 25px;font-size:12px}.details{width:100%;border-collapse:collapse;margin-bottom:30px;table-layout:fixed}.details td{border:1px solid #d8dde3;padding:10px 12px;font-size:13px;line-height:1.35}.details td:nth-child(odd){background:#f3f5f7;font-weight:bold;width:15%}.records{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}.records th{background:#243447;color:white;text-align:left;padding:10px 9px}.records th:nth-child(1){width:7%}.records th:nth-child(2){width:28%}.records th:nth-child(3){width:20%}.records th:nth-child(4){width:12%}.records th:nth-child(5){width:15%}.records th:nth-child(6){width:18%}.records td{border:1px solid #d8dde3;padding:9px;line-height:1.35}.records tr:nth-child(even){background:#f8fafb}.footer{margin-top:30px;color:#7a838d;font-size:10px}</style></head><body><h1>Student Quiz Performance Record</h1><p class="subtitle">Official class record generated from QuizLab</p><table class="details"><tr><td>Teacher</td><td>${escapeHtml(teacher)}</td><td>Subject</td><td>${escapeHtml(subject)}</td></tr><tr><td>Quiz No.</td><td>${escapeHtml(displayQuizNumber(quiz) || code)}</td><td>Class Code</td><td>${escapeHtml(code)}</td></tr><tr><td>Schedule</td><td>${escapeHtml(schedule)}</td><td>Duration</td><td>${quiz.duration || 20} minutes</td></tr><tr><td>Total Questions</td><td>${actualQuestionCount}</td><td>Total Students</td><td>${rows.length}</td></tr></table><h2>Student Records</h2><table class="records"><thead><tr><th>No.</th><th>Student</th><th>Course / Year</th><th>Score</th><th>Result</th><th>Date and Time Taken</th></tr></thead><tbody>${tableRows}</tbody></table><p class="footer">Generated on ${escapeHtml(formatDate(new Date()))}</p></body></html>`;
       const link = document.createElement('a');
@@ -1063,7 +1072,7 @@
       $('professorQuizCards').className = groups.length ? '' : 'empty';
       $('professorQuizCards').innerHTML = groups.length ? groups.map((quiz,index) => {
         const isDraft = false;
-        const questionCount = state.quizzes.filter(item => item.classCode === quiz.classCode).length || (Array.isArray(quiz.questions) ? quiz.questions.length : 0);
+        const questionCount = quizQuestionCount(quiz);
         return `<article class="dashboard-quiz-card"><div class="card-actions"><button class="icon-btn icon-edit edit-quiz" title="Set start & end time" aria-label="Set start & end time" data-code="${escapeHtml(quiz.classCode)}" type="button">&#9998;</button><button class="icon-btn delete icon-delete" title="Delete quiz" aria-label="Delete quiz" data-code="${escapeHtml(quiz.classCode)}" type="button">&#128465;</button></div><span class="tag">${escapeHtml(isDraft ? 'DRAFT' : quiz.status).toUpperCase()}</span><h3>Quiz ${String(index + 1).padStart(2,'0')} · ${escapeHtml(quiz.title)}</h3><p><strong>Quiz No.:</strong> ${escapeHtml(displayQuizNumber(quiz))} · <strong>Subject:</strong> ${escapeHtml(quiz.title)}</p><p><strong>Schedule:</strong> ${quiz.startAt && quiz.endAt ? `${formatDate(quiz.startAt)} - ${formatDate(quiz.endAt)}` : 'Set start & end time'}</p><p><strong>Questions:</strong> ${questionCount}</p><div class="toolbar"><button class="btn outline set-schedule" data-code="${escapeHtml(quiz.classCode)}" type="button">Set start & end time</button><button class="btn outline view-quiz" data-code="${escapeHtml(quiz.classCode)}" type="button">View quiz</button></div><div class="edit-form hidden" data-edit-code="${escapeHtml(quiz.classCode)}"><div class="form-grid"><div class="field"><label>START TIME</label><input type="datetime-local" data-edit-start value="${escapeHtml(formatDateTimeLocal(quiz.startAt))}"></div><div class="field"><label>END TIME</label><input type="datetime-local" data-edit-end value="${escapeHtml(formatDateTimeLocal(quiz.endAt))}"></div></div><button class="btn primary save-quiz-edit" data-code="${escapeHtml(quiz.classCode)}" type="button">Save quiz changes</button></div></article>`;
       }).join('') : 'No quizzes created yet.';
     }
@@ -1097,7 +1106,7 @@
           const action = alreadyTaken
             ? '<div class="join-notice">Unavailable, you already took this quiz.</div>'
             : '<div class="join-notice">Good luck, I believe in you.</div><div class="toolbar"><button class="btn primary join-quiz" data-code="' + escapeHtml(quiz.classCode) + '" type="button">Join quiz</button></div>';
-          const questionCount = state.quizzes.filter(item => item.classCode === quiz.code).length;
+          const questionCount = quizQuestionCount(quiz);
           return `<article class="dashboard-quiz-card"><span class="tag">ONGOING</span><h3>Quiz ${String(index + 1).padStart(2,'0')} · ${escapeHtml(formatSubject(quiz.title))}</h3><p><strong>Teacher:</strong> ${escapeHtml(formatPersonName(quiz.teacherName || 'Teacher'))}</p><p><strong>Date:</strong> ${formatDate(quiz.startAt)}</p><p><strong>Quiz No.:</strong> ${escapeHtml(displayQuizNumber(quiz))}</p><p><strong>Questions:</strong> ${questionCount}</p><p class="live-remaining"><strong>Remaining:</strong> calculating...</p>${action}</article>`;
         }).join('')
         : teacherCodeExists
@@ -1211,6 +1220,7 @@
             <button class="btn secondary student-prev" type="button" ${currentStudent.currentQuestionIndex === 0 ? 'disabled' : ''}>Previous</button>
             <button class="btn primary student-next" type="button">${currentStudent.currentQuestionIndex === total - 1 ? 'Submit all answers' : 'Next question'}</button>
           </div>
+          <div class="quiz-motivation"><span class="quiz-motivation-bear" aria-hidden="true">🧸</span><p class="quiz-motivation-copy">${currentStudent.currentQuestionIndex === 0 ? '<strong>Good luck!</strong>' : ''}Take the risk, or you may lose the chance. The answer you think is right may not be correct, so be wise when making your decision. It is like taking an exam.</p></div>
         </div>
       `;
       $('quizInstructions').textContent = currentQuiz.description || 'Your answers auto-save on this device. Submit before the timer ends.';
@@ -1300,18 +1310,20 @@
       $('scoreMessage').textContent = submission.resultMessage || (passed ? 'Excellent work. Your effort paid off.' : 'You did your best. Review the answers below and keep growing.');
       const quoteList = passed ? passingQuotes : learningQuotes;
       const quoteElement = $('scoreQuote');
-      clearInterval(quoteRotationHandle);
+      clearTimeout(quoteRotationHandle);
       let quoteIndex = (Number(submission.score) + Number(submission.total)) % quoteList.length;
       quoteElement.classList.remove('is-changing');
       quoteElement.textContent = quoteList[quoteIndex];
-      quoteRotationHandle = setInterval(() => {
+      const rotateQuote = () => {
         quoteElement.classList.add('is-changing');
         setTimeout(() => {
           quoteIndex = (quoteIndex + 1) % quoteList.length;
           quoteElement.textContent = quoteList[quoteIndex];
           quoteElement.classList.remove('is-changing');
-        }, 520);
-      }, 5200);
+          quoteRotationHandle = setTimeout(rotateQuote, 6500);
+        }, 700);
+      };
+      quoteRotationHandle = setTimeout(rotateQuote, 6500);
       $('pandaSuccessMessage')?.classList.remove('show');
       $('pandaBibleMessage')?.classList.remove('show');
       $('teacherMessageInput').value = '';
@@ -1319,10 +1331,10 @@
       $('scoreTeacher').textContent = formatPersonName(teacherName);
       $('scoreSubject').textContent = formatSubject(submission.subject || submission.title || quiz.title || 'Untitled quiz');
       $('scoreQuizNumber').textContent = displayQuizNumber(submission) || 'Not set';
-      const scoreConfetti = Array.from({ length:24 }, (_, index) => `<i class="confetti" style="left:${(index * 17) % 100}%;background:${['#e4a0a8','#e7b07a','#4eaa7d','#f6d8da'][index % 4]};animation-delay:${(index % 8) * .08}s;transform:rotate(${index * 19}deg)"></i>`).join('');
+      const scoreConfetti = Array.from({ length:36 }, (_, index) => `<i class="confetti" style="left:${(index * 29) % 100}%;background:${['#e4a0a8','#e7b07a','#4eaa7d','#f6d8da'][index % 4]};animation-delay:${(index % 12) * .1}s;transform:rotate(${index * 19}deg)"></i>`).join('');
       const clapHands = passed ? Array.from({ length:7 }, (_, index) => `<span class="passing-hands" style="left:${8 + index * 14}%;animation-delay:${index * .12}s">👏</span>`).join('') : '';
       $('scoreConfetti').innerHTML = scoreConfetti + clapHands;
-      $('scoreCircleConfetti').innerHTML = passed ? Array.from({ length:16 }, (_, index) => `<i style="left:${[8,18,30,42,50,58,70,82][index % 8]}%;background:${['#e4a0a8','#e7b07a','#4eaa7d','#f6d8da'][index % 4]};animation-delay:${(index % 8) * .12}s"></i>`).join('') : '';
+      $('scoreCircleConfetti').innerHTML = Array.from({ length:20 }, (_, index) => `<i style="left:${[4,12,20,30,40,50,60,70,80,90][index % 10]}%;background:${['#e4a0a8','#e7b07a','#4eaa7d','#f6d8da'][index % 4]};animation-delay:${(index % 10) * .12}s"></i>`).join('');
       $('scoreValue').textContent = submission.score;
       $('scoreTotal').textContent = `/ ${submission.total}`;
       const correctAnswers = submission.answers.filter(answer => normalizeAnswer(answer.answer) === normalizeAnswer(answer.correctAnswer)).length;
