@@ -173,12 +173,14 @@
     .score-hero { position:relative; overflow:hidden; }
     .confetti { position:absolute; top:-14px; width:8px; height:14px; animation:confettiFall 1.8s ease-out forwards; }
     @keyframes confettiFall { to { transform:translateY(360px) rotate(540deg); opacity:0; } }
+    .passing-hands { position:absolute; top:-54px; z-index:2; font-size:clamp(24px,4vw,38px); line-height:1; animation:clapHandsFall 1.8s cubic-bezier(.2,.8,.3,1) forwards; }
+    @keyframes clapHandsFall { 0% { transform:translateY(0) rotate(-18deg) scale(.8); opacity:0; } 15% { opacity:1; } 72% { transform:translateY(245px) rotate(12deg) scale(1); opacity:1; } 100% { transform:translateY(310px) rotate(-8deg) scale(.9); opacity:0; } }
     .score-circle { position:relative; width:clamp(150px,24vw,210px); aspect-ratio:1; margin:18px auto; padding:10px; display:grid; place-items:center; border-radius:50%; background:conic-gradient(#4eaa7d calc(var(--correct-percent, 0) * 1%), #e2b93b 0); box-shadow:0 0 0 8px #4e8c7955,0 16px 30px #12070b55; transition:background .35s ease, box-shadow .25s ease; }
     .score-circle > .score-circle-value { width:100%; height:100%; display:grid; place-items:center; border-radius:50%; background:#24141b; }
     .score-circle .circle-confetti { position:absolute; inset:-10px; pointer-events:none; overflow:hidden; border-radius:50%; }
     .score-circle .circle-confetti i { position:absolute; top:-8px; width:5px; height:9px; border-radius:2px; animation:circleConfettiFall 1.8s ease-out infinite; }
     @keyframes circleConfettiFall { 0% { transform:translateY(0) rotate(0); opacity:0; } 15% { opacity:1; } 100% { transform:translateY(205px) rotate(360deg); opacity:0; } }
-    .score-circle strong { display:block; color:#e5fff2; font:700 clamp(32px,7vw,54px) 'Space Grotesk'; line-height:1; }
+    .score-circle strong { display:block; color:#e5fff2; font:700 clamp(38px,8vw,60px) 'Space Grotesk'; line-height:1; }
     .score-circle span { color:var(--muted); font-size:12px; font-weight:700; }
     .score-review { background:#321b24; border:1px solid var(--line); border-radius:14px; padding:clamp(18px,2vw,24px); }
     .teacher-message { position:relative; overflow:hidden; background:linear-gradient(145deg,#3b202f,#2b1b29 68%,#233a34); border:1px solid #76505b; border-radius:20px; padding:clamp(18px,2vw,26px); box-shadow:0 12px 28px #12070b45; }
@@ -213,7 +215,8 @@
     .panda-message-after { display:none; margin-top:12px; border:1px solid var(--line); border-radius:12px; background:#233a34; padding:16px; color:#d6f7ec; line-height:1.6; animation:rise .35s ease both; }
     .panda-message-after.show { display:block; }
     .panda-message-after strong { color:#f3c1aa; }
-    .score-quote { color:#f0c2c5; text-align:center; font:italic 16px 'DM Sans',sans-serif; margin:12px auto 0; max-width:620px; }
+    .score-quote { color:#f0c2c5; text-align:center; font:italic 16px 'DM Sans',sans-serif; margin:12px auto 0; max-width:620px; transition:opacity .5s ease, transform .5s ease; }
+    .score-quote.is-changing { opacity:0; transform:translateY(5px); }
     .record-card { background:#2b1d28; border:1px solid var(--line); border-radius:10px; margin-top:10px; padding:14px; }
     .record-card:first-child { margin-top:0; }
     .record-card .btn { flex:0 0 auto; }
@@ -326,8 +329,11 @@
     .rank-row small { color:var(--muted); }
     .paper-question { border-top:1px solid var(--line); padding:15px 0; }
     .paper-question:first-child { border-top:0; }
-    .teacher-paper-message { margin-top:18px; padding:15px; border:1px solid #76505b; border-radius:10px; background:#30202a; }
-    .teacher-paper-message .paper-answer { color:#f6d8da; background:#4b2631; }
+    .teacher-paper-message { margin-top:18px; padding:16px; border:1px solid #d9958f; border-radius:14px; background:linear-gradient(145deg,#3b202f,#2b1b29 68%,#233a34); box-shadow:0 10px 22px #12070b45; }
+    .teacher-paper-message-head { display:flex; align-items:center; gap:11px; margin-bottom:10px; }
+    .teacher-paper-message-bear { display:grid; place-items:center; flex:0 0 40px; width:40px; height:40px; border:1px solid #d9958f; border-radius:50%; background:#f3c1aa; box-shadow:0 4px 0 #a85f60,0 6px 12px #12070b55; font-size:23px; }
+    .teacher-paper-message-head strong { color:#ffe6d7; }
+    .teacher-paper-message .paper-answer { color:#f6d8da; background:#4b2631; margin-top:0; }
     .paper-answer { margin-top:8px; padding:10px; border-radius:7px; background:#3a2936; font-size:13px; color:var(--ink); }
     .paper-answer.correct { background:#27473f; color:#d6f7ec; }
     .paper-answer.wrong { background:#4a2730; color:#f4c7ca; }
@@ -471,6 +477,8 @@
       .role-picker { grid-template-columns:1fr; margin:16px 0; }
       .auth-gate { padding:12px; }
       .auth-card { padding:22px 16px; }
+      .password-field input { padding-right:64px; }
+      .password-toggle { right:6px; bottom:6px; min-height:28px; padding:4px 6px; font-size:10px; }
       .student-preview-hero h2 { font-size:24px; }
       .tag { white-space:normal; text-align:center; }
       .podium { gap:5px; min-height:190px; }
@@ -479,6 +487,7 @@
       .podium-avatar { font-size:23px; }
       .podium-medal { font-size:20px; }
       .teacher-ranking .leaderboard { padding:14px 10px; }
+      .score-circle { width:180px; }
       .panda-home-swipe { min-height:110px; }
       .panda-icon { font-size:44px; }.home-icon { font-size:40px; }
       .panda-side { left:8px; }.home-side { right:8px; }
@@ -632,6 +641,7 @@
     let selectedStudentQuiz = null;
     let currentRetakeCode = null;
     let timerHandle = null;
+    let quoteRotationHandle = null;
     let cardTimerHandle = null;
     let scheduleRefreshHandle = null;
     let submissionListeners = [];
@@ -937,7 +947,7 @@
       return [...groups.values()];
     }
     function quizGroups() { return visibleQuizGroups(state.quizzes).filter(group => group.status === 'ended'); }
-    function renderQuizDoneCards() { const groups = quizGroups(); $('quizDoneCards').className = groups.length ? 'quiz-cards' : 'hidden'; $('quizDoneEmpty').classList.toggle('hidden', Boolean(groups.length)); $('quizDoneCards').innerHTML = groups.map((group,index) => { const submissions = state.submissions.filter(item => group.codes.includes(item.classCode)); const questionCount = state.quizzes.filter(item => item.classCode === group.code).length || group.questions.length; return `<article class="done-card" data-quiz-code="${escapeHtml(group.code)}"><div class="card-actions"><button class="icon-btn icon-edit done-edit" title="Edit quiz schedule" aria-label="Edit quiz" data-code="${escapeHtml(group.code)}" type="button">&#9998;</button><button class="icon-btn delete icon-delete done-delete" title="Delete quiz" aria-label="Delete quiz" data-code="${escapeHtml(group.code)}" type="button">&#128465;</button></div><span class="number-badge">ENDED</span><h3>Quiz ${String(index + 1).padStart(2,'0')} · ${escapeHtml(formatSubject(group.title))}</h3><p><strong>Teacher:</strong> ${escapeHtml(formatPersonName(group.teacherName || 'Teacher'))}</p><p><strong>Subject:</strong> ${escapeHtml(formatSubject(group.title))}</p><p><strong>Quiz No.:</strong> ${escapeHtml(displayQuizNumber(group))}</p><p><strong>Schedule:</strong> ${group.startAt && group.endAt ? `${formatDate(group.startAt)} - ${formatDate(group.endAt)}` : 'Schedule not set'}</p><p><strong>Questions:</strong> ${questionCount}</p><div class="card-footer"><button class="takers-count" data-code="${escapeHtml(group.code)}" type="button">${submissions.length} TAKERS</button><button class="ranking-btn" data-code="${escapeHtml(group.code)}" type="button">View ranking</button><button class="btn outline export-results" data-code="${escapeHtml(group.code)}" type="button">Download Record Document</button><button class="btn outline retake-quiz" data-code="${escapeHtml(group.code)}" type="button">Retake</button></div></article>`; }).join(''); }
+    function renderQuizDoneCards() { const groups = quizGroups(); const viewingStudentPaper = !$('studentPaperView')?.classList.contains('hidden'); const viewingStudentList = !$('quizStudentView')?.classList.contains('hidden'); $('quizDoneCards').className = groups.length && !viewingStudentPaper && !viewingStudentList ? 'quiz-cards' : 'hidden'; $('quizDoneEmpty').classList.toggle('hidden', Boolean(groups.length)); $('quizDoneCards').innerHTML = groups.map((group,index) => { const submissions = state.submissions.filter(item => group.codes.includes(item.classCode)); const questionCount = state.quizzes.filter(item => item.classCode === group.code).length || group.questions.length; return `<article class="done-card" data-quiz-code="${escapeHtml(group.code)}"><div class="card-actions"><button class="icon-btn icon-edit done-edit" title="Edit quiz schedule" aria-label="Edit quiz" data-code="${escapeHtml(group.code)}" type="button">&#9998;</button><button class="icon-btn delete icon-delete done-delete" title="Delete quiz" aria-label="Delete quiz" data-code="${escapeHtml(group.code)}" type="button">&#128465;</button></div><span class="number-badge">ENDED</span><h3>Quiz ${String(index + 1).padStart(2,'0')} · ${escapeHtml(formatSubject(group.title))}</h3><p><strong>Teacher:</strong> ${escapeHtml(formatPersonName(group.teacherName || 'Teacher'))}</p><p><strong>Subject:</strong> ${escapeHtml(formatSubject(group.title))}</p><p><strong>Quiz No.:</strong> ${escapeHtml(displayQuizNumber(group))}</p><p><strong>Schedule:</strong> ${group.startAt && group.endAt ? `${formatDate(group.startAt)} - ${formatDate(group.endAt)}` : 'Schedule not set'}</p><p><strong>Questions:</strong> ${questionCount}</p><div class="card-footer"><button class="takers-count" data-code="${escapeHtml(group.code)}" type="button">${submissions.length} TAKERS</button><button class="ranking-btn" data-code="${escapeHtml(group.code)}" type="button">View ranking</button><button class="btn outline export-results" data-code="${escapeHtml(group.code)}" type="button">Download Record Document</button><button class="btn outline retake-quiz" data-code="${escapeHtml(group.code)}" type="button">Retake</button></div></article>`; }).join(''); }
     function updateQuizRecords(code, changes) { state.quizzes = state.quizzes.map(item => item.classCode === code ? { ...item, ...changes } : item); saveLocal(); }
     function exportQuizResults(code) {
       const group = quizGroups().find(item => item.codes.includes(code)) || visibleQuizGroups(state.quizzes).find(item => item.codes.includes(code));
@@ -1148,6 +1158,7 @@
       if (!item) return;
       const remoteMessages = await loadFirebaseTeacherMessages([item.classCode]);
       state.messages = [...state.messages.filter(entry => entry.classCode !== item.classCode), ...remoteMessages];
+      $('quizDoneCards').classList.add('hidden');
       $('quizStudentView').classList.add('hidden');
       $('studentPaperView').classList.remove('hidden');
       $('selectedStudentTitle').textContent = formatPersonName(item.studentName);
@@ -1157,8 +1168,12 @@
         const correct = normalizeAnswer(answer.answer) === normalizeAnswer(answer.correctAnswer);
         return `<div class="paper-question"><strong>${index + 1}. ${escapeHtml(formatSentence(answer.question))}</strong><div class="paper-answer ${correct ? 'correct' : 'wrong'}"><b>Student answer:</b> ${escapeHtml(formatSentence(answer.answer)) || 'No answer'}<br><b>Correct answer:</b> ${escapeHtml(formatSentence(answer.correctAnswer))}</div></div>`;
       }).join('');
-      const message = [...state.messages].filter(entry => entry.classCode === item.classCode && entry.studentUid === item.studentUid).sort((a,b) => timestampValue(b.createdAt) - timestampValue(a.createdAt))[0];
-      const messageMarkup = message ? `<div class="paper-question teacher-paper-message"><strong>Message from student</strong><div class="paper-answer">${escapeHtml(message.message)}</div></div>` : '';
+      const message = [...state.messages].filter(entry => entry.classCode === item.classCode && (
+        (item.studentUid && entry.studentUid === item.studentUid) ||
+        (item.studentNumber && entry.studentNumber === item.studentNumber) ||
+        (entry.studentName && normalizeAnswer(entry.studentName) === normalizeAnswer(item.studentName))
+      )).sort((a,b) => timestampValue(b.createdAt) - timestampValue(a.createdAt))[0];
+      const messageMarkup = message ? `<div class="paper-question teacher-paper-message"><div class="teacher-paper-message-head"><span class="teacher-paper-message-bear" aria-hidden="true">🧸</span><strong>Message from student</strong></div><div class="paper-answer">${escapeHtml(message.message)}</div></div>` : '';
       $('studentPaper').innerHTML = (answers || '<div class="empty">No answer record was saved for this submission.</div>') + messageMarkup;
     }
 
@@ -1267,9 +1282,36 @@
       const passed = submission.score >= Math.ceil(submission.total / 2);
       const quiz = state.quizzes.find(item => item.classCode === submission.classCode) || {};
       const teacherName = quiz.teacherName || submission.teacherName || 'Teacher';
+      const passingQuotes = [
+        '“You worked hard for this. Enjoy your win.”',
+        '“You showed up, stayed focused, and made it happen.”',
+        '“Your hard work is speaking louder than any score.”',
+        '“Progress feels even better when you worked for every point.”',
+        '“Believe in the effort you put in. You earned this moment.”'
+      ];
+      const learningQuotes = [
+        '“Every answer is a step forward. Keep learning and keep believing.”',
+        '“A result is not the end of the story. Your next try can be stronger.”',
+        '“Mistakes are clues that help you find the right path.”',
+        '“Keep going gently. Learning takes time, and you are still growing.”',
+        '“You may not have reached the goal yet, but you are closer than before.”'
+      ];
       $('scoreHeadline').textContent = passed ? 'Congratulations!' : 'Keep going, you are learning!';
       $('scoreMessage').textContent = submission.resultMessage || (passed ? 'Excellent work. Your effort paid off.' : 'You did your best. Review the answers below and keep growing.');
-      $('scoreQuote').textContent = passed ? '“Small steps, brave effort, beautiful progress.”' : '“Every answer is a step forward. Keep learning and keep believing.”';
+      const quoteList = passed ? passingQuotes : learningQuotes;
+      const quoteElement = $('scoreQuote');
+      clearInterval(quoteRotationHandle);
+      let quoteIndex = (Number(submission.score) + Number(submission.total)) % quoteList.length;
+      quoteElement.classList.remove('is-changing');
+      quoteElement.textContent = quoteList[quoteIndex];
+      quoteRotationHandle = setInterval(() => {
+        quoteElement.classList.add('is-changing');
+        setTimeout(() => {
+          quoteIndex = (quoteIndex + 1) % quoteList.length;
+          quoteElement.textContent = quoteList[quoteIndex];
+          quoteElement.classList.remove('is-changing');
+        }, 520);
+      }, 5200);
       $('pandaSuccessMessage')?.classList.remove('show');
       $('pandaBibleMessage')?.classList.remove('show');
       $('teacherMessageInput').value = '';
@@ -1277,7 +1319,9 @@
       $('scoreTeacher').textContent = formatPersonName(teacherName);
       $('scoreSubject').textContent = formatSubject(submission.subject || submission.title || quiz.title || 'Untitled quiz');
       $('scoreQuizNumber').textContent = displayQuizNumber(submission) || 'Not set';
-      $('scoreConfetti').innerHTML = passed ? Array.from({ length:24 }, (_, index) => `<i class="confetti" style="left:${(index * 17) % 100}%;background:${['#e4a0a8','#e7b07a','#4eaa7d','#f6d8da'][index % 4]};animation-delay:${(index % 8) * .08}s;transform:rotate(${index * 19}deg)"></i>`).join('') : '';
+      const scoreConfetti = Array.from({ length:24 }, (_, index) => `<i class="confetti" style="left:${(index * 17) % 100}%;background:${['#e4a0a8','#e7b07a','#4eaa7d','#f6d8da'][index % 4]};animation-delay:${(index % 8) * .08}s;transform:rotate(${index * 19}deg)"></i>`).join('');
+      const clapHands = passed ? Array.from({ length:7 }, (_, index) => `<span class="passing-hands" style="left:${8 + index * 14}%;animation-delay:${index * .12}s">👏</span>`).join('') : '';
+      $('scoreConfetti').innerHTML = scoreConfetti + clapHands;
       $('scoreCircleConfetti').innerHTML = passed ? Array.from({ length:16 }, (_, index) => `<i style="left:${[8,18,30,42,50,58,70,82][index % 8]}%;background:${['#e4a0a8','#e7b07a','#4eaa7d','#f6d8da'][index % 4]};animation-delay:${(index % 8) * .12}s"></i>`).join('') : '';
       $('scoreValue').textContent = submission.score;
       $('scoreTotal').textContent = `/ ${submission.total}`;
@@ -1711,7 +1755,7 @@
 
     let selectedRole = 'professor';
     let demoInitialized = false;
-    function showProfessorArea(area) { const builder = $('profBuilderPane'); const summary = $('profSummaryPane'); const results = $('profResults'); if (!builder || !summary || !results) return; if (area !== 'profBuilder') { $('professorQuizPreview')?.classList.add('hidden'); $('professorEditWorkspace')?.classList.add('hidden'); $('retakeWorkspace')?.classList.add('hidden'); $('professorForm')?.classList.remove('hidden'); builder.classList.remove('preview-mode'); currentPreviewQuizCode = null; currentPreviewQuizIndex = 0; currentEditingCode = null; currentRetakeCode = null; } builder.classList.toggle('hidden', area !== 'profBuilder'); summary.classList.toggle('hidden', area !== 'profDashboard'); results.classList.toggle('hidden', area !== 'profResults'); }
+    function showProfessorArea(area) { const builder = $('profBuilderPane'); const summary = $('profSummaryPane'); const results = $('profResults'); if (!builder || !summary || !results) return; if (area !== 'profBuilder') { $('professorQuizPreview')?.classList.add('hidden'); $('professorEditWorkspace')?.classList.add('hidden'); $('retakeWorkspace')?.classList.add('hidden'); $('professorForm')?.classList.remove('hidden'); builder.classList.remove('preview-mode'); currentPreviewQuizCode = null; currentPreviewQuizIndex = 0; currentEditingCode = null; currentRetakeCode = null; } if (area === 'profResults') { $('quizDoneCards')?.classList.remove('hidden'); $('quizStudentView')?.classList.add('hidden'); $('studentPaperView')?.classList.add('hidden'); renderQuizDoneCards(); } builder.classList.toggle('hidden', area !== 'profBuilder'); summary.classList.toggle('hidden', area !== 'profDashboard'); results.classList.toggle('hidden', area !== 'profResults'); }
     function setProfessorNavActive(area) { document.querySelectorAll('#professorNav .nav-btn').forEach(item => item.classList.toggle('active', item.dataset.area === area)); }
     function showBuilderEditor(show) { $('professorForm').classList.toggle('hidden', show); $('professorEditWorkspace').classList.toggle('hidden', !show); }
     function openRetakeWorkspace(code) {
@@ -2112,8 +2156,9 @@
       const submission = state.submissions.find(item => item.studentUid === (auth.currentUser?.uid || '') && item.classCode === currentStudent?.classCode);
       const quiz = state.quizzes.find(item => item.classCode === currentStudent?.classCode) || {};
       setBusy(button, true, 'Sending');
-      await firebaseWrite('teacherMessages', { message, studentUid:auth.currentUser?.uid || '', studentName:currentStudent?.studentName || '', teacherUid:quiz.ownerUid || '', teacherName:quiz.teacherName || 'Teacher', classCode:currentStudent?.classCode || '', quizTitle:submission?.title || quiz.title || '', score:submission?.score ?? null, total:submission?.total ?? null });
-      state.messages = [...state.messages, { message, studentUid:auth.currentUser?.uid || '', studentName:currentStudent?.studentName || '', teacherUid:quiz.ownerUid || '', teacherName:quiz.teacherName || 'Teacher', classCode:currentStudent?.classCode || '', quizTitle:submission?.title || quiz.title || '', score:submission?.score ?? null, total:submission?.total ?? null, createdAt:new Date().toISOString() }];
+      const messageRecord = { message, studentUid:auth.currentUser?.uid || '', studentName:currentStudent?.studentName || '', studentNumber:currentStudent?.studentNumber || '', teacherUid:quiz.ownerUid || '', teacherName:quiz.teacherName || 'Teacher', classCode:currentStudent?.classCode || '', quizTitle:submission?.title || quiz.title || '', score:submission?.score ?? null, total:submission?.total ?? null };
+      await firebaseWrite('teacherMessages', messageRecord);
+      state.messages = [...state.messages, { ...messageRecord, createdAt:new Date().toISOString() }];
       setBusy(button, false);
       input.value = '';
       status.textContent = 'Message sent to your teacher.';
